@@ -40,7 +40,7 @@ header{height:auto;min-height:64px;flex-wrap:wrap;gap:4px;padding-top:8px;paddin
 <div class="candidate-line"><span class="label">Top 5</span><div id="candidates"><span class="empty">—</span></div></div>
 <div id="status" role="status" aria-live="polite"></div></section>
 <div id="editor" contenteditable="false" role="textbox" aria-label="Note text" aria-multiline="true" aria-readonly="true" tabindex="0" spellcheck="false" data-placeholder=""></div>
-<details id="jsonPanel" open><summary>Selection JSON</summary><pre id="jsonPreview" tabindex="0" aria-label="Selection JSON without geometry">No selection yet.</pre></details>
+<details id="jsonPanel" open><summary>Selection JSON</summary><pre id="jsonPreview" tabindex="0" aria-label="Complete selection JSON">No selection yet.</pre></details>
 </main>
 <svg id="overlay" aria-hidden="true"></svg>
 <script>
@@ -181,10 +181,9 @@ function sentenceContext(text,start,end){
  const i=merged.findIndex(p=>start<p.end&&end>p.start);
  return {previous_sentence:i>0?merged[i-1].text.trim():null,current_sentence:i>=0?merged[i].text.trim():text.trim(),next_sentence:i>=0&&i+1<merged.length?merged[i+1].text.trim():null};
 }
-// Presentation-only filtering. The event and download retain the original payload.
-const geometryFields=new Set(['coordinate_unit','touch','layout','sigma_css_px','word_geometry','boxes_viewport_css_px','boxes_editor_content_css_px','box_distance_css_px','gaussian_box_mass_normalized']);
+// Display the full payload exactly as supplied to the event and download.
 function renderJSON(){
- $('jsonPreview').textContent=latestPayload?JSON.stringify(latestPayload,(key,value)=>geometryFields.has(key)?undefined:value,2):'No selection yet.';
+ $('jsonPreview').textContent=latestPayload?JSON.stringify(latestPayload,null,2):'No selection yet.';
 }
 $('jsonPanel').addEventListener('toggle',()=>{resetGesture();draw();});
 function emitReady(payload){if(payload.ready)return;payload.ready=true;records.push(structuredClone(payload));if(records.length>200)records.shift();if(latestPayload===payload){$('export').disabled=false;renderJSON();}window.dispatchEvent(new CustomEvent('notes:selectionready',{detail:structuredClone(payload)}));}
